@@ -1,0 +1,47 @@
+{
+    "name": "samuelterra22/laravel-users-online",
+    "description": "This package will provide an online users management.",
+    "version" : "3.0.1",
+    "license": "MIT",
+    "keywords": ["laravel", "users", "online", "management", "package"],
+    "authors": [
+        {
+            "name": "Samuel Terra",
+            "email": "samuelterra22@gmailmail.com",
+            "homepage": "https://samuelterra.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "SamuelTerra22\\UsersOnline\\" : "src/",
+            "SamuelTerra22\\Tests\\" : "tests/"
+        }
+    },
+    "autoload-dev": {
+        "classmap": ["tests/TestCase.php"]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8",
+        "illuminate/database": "^8.0",
+        "orchestra/testbench": "^6.0",
+        "illuminate/cache": "^8.0",
+        "illuminate/support": "^8.0",
+        "illuminate/auth": "^8.0",
+        "illuminate/session": "^8.0",
+        "codacy/coverage": "dev-master"
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SamuelTerra22\\UsersOnline\\Providers\\UsersOnlineEventServiceProvider"
+            ]
+        }
+    }
+}

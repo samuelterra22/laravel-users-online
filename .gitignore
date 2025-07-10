@@ -1,0 +1,6 @@
+vendor/
+tests/report/
+tags
+*.swp
+.idea
+.phpunit.result.cache
