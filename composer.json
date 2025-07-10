@@ -1,9 +1,15 @@
 {
     "name": "samuelterra22/laravel-users-online",
     "description": "This package will provide an online users management.",
-    "version" : "3.0.1",
+    "version": "3.0.1",
     "license": "MIT",
-    "keywords": ["laravel", "users", "online", "management", "package"],
+    "keywords": [
+        "laravel",
+        "users",
+        "online",
+        "management",
+        "package"
+    ],
     "authors": [
         {
             "name": "Samuel Terra",
@@ -12,25 +18,29 @@
             "role": "Developer"
         }
     ],
-    "require": {},
+    "require": {
+        "vildanbina/composer-upgrader": "^1.0"
+    },
     "autoload": {
         "psr-4": {
-            "SamuelTerra22\\UsersOnline\\" : "src/",
-            "SamuelTerra22\\Tests\\" : "tests/"
+            "SamuelTerra22\\UsersOnline\\": "src/",
+            "SamuelTerra22\\Tests\\": "tests/"
         }
     },
     "autoload-dev": {
-        "classmap": ["tests/TestCase.php"]
+        "classmap": [
+            "tests/TestCase.php"
+        ]
     },
     "require-dev": {
-        "phpunit/phpunit": "^8",
-        "illuminate/database": "^8.0",
-        "orchestra/testbench": "^6.0",
-        "illuminate/cache": "^8.0",
-        "illuminate/support": "^8.0",
-        "illuminate/auth": "^8.0",
-        "illuminate/session": "^8.0",
-        "codacy/coverage": "dev-master"
+        "phpunit/phpunit": "^11.5",
+        "illuminate/database": "^12.20.0",
+        "orchestra/testbench": "^10.4.0",
+        "illuminate/cache": "^12.20.0",
+        "illuminate/support": "^12.20.0",
+        "illuminate/auth": "^12.20.0",
+        "illuminate/session": "^12.20.0",
+        "php-coveralls/php-coveralls": "^0.1.0"
     },
     "scripts": {
         "test": [
@@ -42,6 +52,11 @@
             "providers": [
                 "SamuelTerra22\\UsersOnline\\Providers\\UsersOnlineEventServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "vildanbina/composer-upgrader": true
         }
     }
 }
