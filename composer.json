@@ -20,12 +20,12 @@
     ],
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^9.0|^10.0|^11.0"
+        "laravel/framework": "^9.0|^10.0|^11.0|^12.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5|^10.0|^11.0",
+        "pestphp/pest": "^3.8",
+        "phpunit/phpunit": "^11.5",
         "orchestra/testbench": "^7.0|^8.0|^9.0|^10.4",
-        "php-coveralls/php-coveralls": "^2.5",
         "illuminate/database": "^12.20.0",
         "illuminate/cache": "^12.20.0",
         "illuminate/support": "^12.20.0",
@@ -44,8 +44,9 @@
         ]
     },
     "scripts": {
-        "test": "phpunit",
-        "test-coverage": "phpunit --coverage-html coverage"
+        "test": "pest",
+        "test-coverage": "pest --coverage",
+        "test-coverage-html": "pest --coverage-html=tests/coverage"
     },
     "extra": {
         "laravel": {
@@ -59,7 +60,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "vildanbina/composer-upgrader": true
+            "vildanbina/composer-upgrader": true,
+            "pestphp/pest-plugin": true
         }
     },
     "minimum-stability": "stable",

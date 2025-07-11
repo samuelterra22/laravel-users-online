@@ -1,34 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
-         backupGlobals="false"
          bootstrap="vendor/autoload.php"
          colors="true"
          processIsolation="false"
-         stopOnFailure="false"
          executionOrder="random"
          cacheDirectory=".phpunit.cache"
 >
     <testsuites>
-        <testsuite name="Package Test Suite">
-            <directory suffix=".php">./tests/</directory>
-            <exclude>./tests/TestCase.php</exclude>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>
 
     <source>
         <include>
-            <directory suffix=".php">./src/</directory>
+            <directory>src</directory>
         </include>
         <exclude>
-            <directory suffix=".php">./src/Controllers/</directory>
-            <file>./src/UsersOnlineServiceProvider.php</file>
+            <directory>src/Controllers</directory>
+            <file>src/UsersOnlineServiceProvider.php</file>
         </exclude>
     </source>
 
     <coverage>
         <report>
-            <html outputDirectory="./tests/report"/>
+            <html outputDirectory="tests/coverage"/>
+            <clover outputFile="tests/clover.xml"/>
         </report>
     </coverage>
 </phpunit>
