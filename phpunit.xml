@@ -1,32 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         backupGlobals="false"
          bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="true"
+         processIsolation="false"
          stopOnFailure="false"
+         executionOrder="random"
+         cacheDirectory=".phpunit.cache"
 >
     <testsuites>
         <testsuite name="Package Test Suite">
             <directory suffix=".php">./tests/</directory>
+            <exclude>./tests/TestCase.php</exclude>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+
+    <source>
+        <include>
             <directory suffix=".php">./src/</directory>
-            <exclude>
-              <directory suffix=".php">./src/Controllers/</directory>
-              <directory suffix=".php">./vendor/</directory>
-              <file>./src/UsersOnlineServiceProvider.php</file>
-            </exclude>
-        </whitelist>
-    </filter>
+        </include>
+        <exclude>
+            <directory suffix=".php">./src/Controllers/</directory>
+            <file>./src/UsersOnlineServiceProvider.php</file>
+        </exclude>
+    </source>
 
-    <logging>
-        <log type="coverage-html" target="./tests/report" lowUpperBound="35" highLowerBound="70"/>
-    </logging>
-
+    <coverage>
+        <report>
+            <html outputDirectory="./tests/report"/>
+        </report>
+    </coverage>
 </phpunit>

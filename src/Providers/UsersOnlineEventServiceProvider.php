@@ -15,7 +15,7 @@ class UsersOnlineEventServiceProvider extends ServiceProvider
         'Illuminate\Auth\Events\Logout' => [
             'SamuelTerra22\UsersOnline\Listeners\LogoutListener',
         ],
-        'Illuminate\Auth\Events\Login' => [
+        'Illuminate\Auth\Events\Login'  => [
             'SamuelTerra22\UsersOnline\Listeners\LoginListener',
         ],
     ];

@@ -33,7 +33,12 @@ trait UsersOnlineTrait
      */
     public function leastRecentOnline(): array
     {
-        return $this->getSortedOnlineUsers(true);
+        $sorted = $this->allOnline()
+            ->sortBy(function ($user) {
+                return $user->getCachedAtForSorting();
+            });
+
+        return $sorted->values()->all();
     }
 
     /**
@@ -41,7 +46,12 @@ trait UsersOnlineTrait
      */
     public function mostRecentOnline(): array
     {
-        return $this->getSortedOnlineUsers(false);
+        $sorted = $this->allOnline()
+            ->sortByDesc(function ($user) {
+                return $user->getCachedAtForSorting();
+            });
+
+        return $sorted->values()->all();
     }
 
     /**
@@ -57,9 +67,31 @@ trait UsersOnlineTrait
 
         $cachedAt = $cache['cachedAt'];
 
-        return $cachedAt instanceof Carbon
-            ? $cachedAt->timestamp
-            : (int) $cachedAt;
+        if ($cachedAt instanceof Carbon) {
+            return $cachedAt->getTimestamp();
+        }
+
+        return (int)$cachedAt;
+    }
+
+    /**
+     * Get the cached Carbon instance for sorting purposes.
+     */
+    private function getCachedAtForSorting()
+    {
+        $cache = Cache::get($this->getCacheKey());
+
+        if (!isset($cache['cachedAt'])) {
+            return Carbon::createFromTimestamp(0);
+        }
+
+        $cachedAt = $cache['cachedAt'];
+
+        if ($cachedAt instanceof Carbon) {
+            return $cachedAt;
+        }
+
+        return Carbon::createFromTimestamp((int)$cachedAt);
     }
 
     /**
@@ -107,24 +139,7 @@ trait UsersOnlineTrait
     {
         return [
             'cachedAt' => Carbon::now(),
-            'user' => $this,
+            'user'     => $this,
         ];
-    }
-
-    /**
-     * Get sorted online users.
-     */
-    private function getSortedOnlineUsers(bool $ascending): array
-    {
-        $sorted = $this->allOnline()
-            ->sortBy(
-                function ($user) {
-                    return $user->getCachedAt();
-                },
-                SORT_REGULAR,
-                !$ascending
-            );
-
-        return $sorted->values()->all();
     }
 }
