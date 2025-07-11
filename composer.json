@@ -1,7 +1,7 @@
 {
     "name": "samuelterra22/laravel-users-online",
     "description": "This package will provide an online users management.",
-    "version": "3.0.1",
+    "version": "1.0.0",
     "license": "MIT",
     "keywords": [
         "laravel",
@@ -13,13 +13,24 @@
     "authors": [
         {
             "name": "Samuel Terra",
-            "email": "samuelterra22@gmailmail.com",
+            "email": "samuelterra22@gmail.com",
             "homepage": "https://samuelterra.dev",
             "role": "Developer"
         }
     ],
     "require": {
-        "vildanbina/composer-upgrader": "^1.0"
+        "php": "^8.2",
+        "laravel/framework": "^9.0|^10.0|^11.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5|^10.0|^11.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0|^10.4",
+        "php-coveralls/php-coveralls": "^2.5",
+        "illuminate/database": "^12.20.0",
+        "illuminate/cache": "^12.20.0",
+        "illuminate/support": "^12.20.0",
+        "illuminate/auth": "^12.20.0",
+        "illuminate/session": "^12.20.0"
     },
     "autoload": {
         "psr-4": {
@@ -32,20 +43,9 @@
             "tests/TestCase.php"
         ]
     },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5",
-        "illuminate/database": "^12.20.0",
-        "orchestra/testbench": "^10.4.0",
-        "illuminate/cache": "^12.20.0",
-        "illuminate/support": "^12.20.0",
-        "illuminate/auth": "^12.20.0",
-        "illuminate/session": "^12.20.0",
-        "php-coveralls/php-coveralls": "^0.1.0"
-    },
     "scripts": {
-        "test": [
-            "phpunit"
-        ]
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage"
     },
     "extra": {
         "laravel": {
@@ -55,8 +55,13 @@
         }
     },
     "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
         "allow-plugins": {
             "vildanbina/composer-upgrader": true
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

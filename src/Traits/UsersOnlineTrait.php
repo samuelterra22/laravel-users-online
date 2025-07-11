@@ -4,22 +4,24 @@ declare(strict_types=1);
 namespace SamuelTerra22\UsersOnline\Traits;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 
 trait UsersOnlineTrait
 {
+    private const CACHE_PREFIX = 'UserOnline';
+    private const DEFAULT_CACHE_DURATION = 300;
+
     /**
      * Get all users online.
-     * @return mixed
      */
-    public function allOnline()
+    public function allOnline(): Collection
     {
         return $this->all()->filter->isOnline();
     }
 
     /**
      * Check if the user is online.
-     * @return bool
      */
     public function isOnline(): bool
     {
@@ -28,92 +30,101 @@ trait UsersOnlineTrait
 
     /**
      * Get the least recent online users.
-     * @return mixed
      */
-    public function leastRecentOnline()
+    public function leastRecentOnline(): array
     {
-        $sorted = $this->allOnline()
-            ->sortBy(function ($user) {
-                return $user->getCachedAt();
-            });
-
-        return $sorted->values()->all();
+        return $this->getSortedOnlineUsers(true);
     }
 
     /**
      * Get the most recent online users.
-     * @return mixed
      */
-    public function mostRecentOnline()
+    public function mostRecentOnline(): array
     {
-        $sorted = $this->allOnline()
-            ->sortByDesc(function ($user) {
-                return $user->getCachedAt();
-            });
-
-        return $sorted->values()->all();
+        return $this->getSortedOnlineUsers(false);
     }
 
     /**
      * Get the cached at timestamp for the user.
-     * @return int|mixed
      */
-    public function getCachedAt()
+    public function getCachedAt(): int
     {
-        if (empty($cache = Cache::get($this->getCacheKey()))) {
+        $cache = Cache::get($this->getCacheKey());
+
+        if (!isset($cache['cachedAt'])) {
             return 0;
         }
 
-        return $cache['cachedAt'];
+        $cachedAt = $cache['cachedAt'];
+
+        return $cachedAt instanceof Carbon
+            ? $cachedAt->timestamp
+            : (int) $cachedAt;
     }
 
     /**
      * Set the cache for the user.
-     *
-     * @param int $seconds
-     *
-     * @return bool
      */
-    public function setCache(int $seconds = 300): bool
+    public function setCache(int $seconds = self::DEFAULT_CACHE_DURATION): bool
     {
         return Cache::put(
             $this->getCacheKey(),
-            $this->getCacheContent(),
+            $this->buildCacheContent(),
             $seconds
         );
     }
 
     /**
      * Get the content to be cached for the user.
-     * @return array|mixed
      */
-    public function getCacheContent()
+    public function getCacheContent(): array
     {
-        if (!empty($cache = Cache::get($this->getCacheKey()))) {
-            return $cache;
-        }
-        $cachedAt = Carbon::now();
+        $existingCache = Cache::get($this->getCacheKey());
 
-        return [
-            'cachedAt' => $cachedAt,
-            'user'     => $this,
-        ];
+        return $existingCache ?? $this->buildCacheContent();
     }
 
     /**
      * Remove the cache for the user.
-     * @return void
      */
-    public function pullCache()
+    public function pullCache(): void
     {
         Cache::pull($this->getCacheKey());
     }
 
     /**
-     * @return string
+     * Get the cache key for the user.
      */
     public function getCacheKey(): string
     {
-        return sprintf('%s-%s', 'UserOnline', $this->id);
+        return sprintf('%s-%s', self::CACHE_PREFIX, $this->id);
+    }
+
+    /**
+     * Build fresh cache content.
+     */
+    private function buildCacheContent(): array
+    {
+        return [
+            'cachedAt' => Carbon::now(),
+            'user' => $this,
+        ];
+    }
+
+    /**
+     * Get sorted online users.
+     */
+    private function getSortedOnlineUsers(bool $ascending): array
+    {
+        $sorted = $this->allOnline()
+            ->sortBy(
+                function ($user) {
+                    return $user->getCachedAt();
+                },
+                SORT_REGULAR,
+                !$ascending
+            );
+
+        return $sorted->values()->all();
     }
 }
