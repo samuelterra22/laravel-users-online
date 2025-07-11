@@ -11,7 +11,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function setUp(): void
     {
-        $this->faker = \Faker\Factory::create();
+        $this->faker = Factory::create();
         parent::setUp();
         $this->setUpDatabase();
         $this->migrateTables();

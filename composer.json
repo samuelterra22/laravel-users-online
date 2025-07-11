@@ -24,13 +24,13 @@
     },
     "require-dev": {
         "pestphp/pest": "^3.8",
-        "phpunit/phpunit": "^11.5",
+        "phpunit/phpunit": "^11.5.15",
         "orchestra/testbench": "^7.0|^8.0|^9.0|^10.4",
-        "illuminate/database": "^12.20.0",
-        "illuminate/cache": "^12.20.0",
-        "illuminate/support": "^12.20.0",
-        "illuminate/auth": "^12.20.0",
-        "illuminate/session": "^12.20.0"
+        "illuminate/database": "^11.0",
+        "illuminate/cache": "^11.0",
+        "illuminate/support": "^11.0",
+        "illuminate/auth": "^11.0",
+        "illuminate/session": "^11.0"
     },
     "autoload": {
         "psr-4": {
@@ -44,9 +44,11 @@
         ]
     },
     "scripts": {
-        "test": "pest",
-        "test-coverage": "pest --coverage",
-        "test-coverage-html": "pest --coverage-html=tests/coverage"
+        "test": "pest --colors=always",
+        "test-coverage": "pest --coverage --colors=always",
+        "test-coverage-html": "pest --coverage-html=tests/coverage --colors=always",
+        "test-filter": "pest --filter",
+        "test-watch": "pest --watch"
     },
     "extra": {
         "laravel": {
@@ -60,7 +62,6 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "vildanbina/composer-upgrader": true,
             "pestphp/pest-plugin": true
         }
     },
