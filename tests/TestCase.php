@@ -2,8 +2,9 @@
 
 namespace SamuelTerra22\Tests;
 
-use SamuelTerra22\UsersOnline\Traits\UsersOnlineTrait;
+use Faker\Factory;
 use Illuminate\Database\Capsule\Manager as DB;
+use SamuelTerra22\UsersOnline\Traits\UsersOnlineTrait;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
