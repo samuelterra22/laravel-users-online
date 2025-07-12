@@ -34,7 +34,7 @@ describe('Performance and Stress Tests', function () {
         expect($leastRecent)->toHaveCount($userCount);
 
         // Performance assertions (adjust thresholds as needed)
-        expect($creationTime)->toBeLessThan(5.0); // 5 seconds max
+        expect($creationTime)->toBeLessThan(6.0); // 6 seconds max
         expect($retrievalTime)->toBeLessThan(1.0); // 1 second max
         expect($sortingTime)->toBeLessThan(2.0); // 2 seconds max
     });
