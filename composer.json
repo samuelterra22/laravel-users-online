@@ -1,7 +1,6 @@
 {
     "name": "samuelterra22/laravel-users-online",
     "description": "This package will provide an online users management.",
-    "version": "1.0.0",
     "license": "MIT",
     "keywords": [
         "laravel",
