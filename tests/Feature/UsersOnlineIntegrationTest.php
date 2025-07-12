@@ -190,6 +190,7 @@ describe('Real-world Scenarios', function () {
     it('maintains performance with rapid user turnover', function () {
         $userCount = 25;
         $users = collect();
+        $offlineUsers = collect();
 
         // Create users rapidly
         for ($i = 0; $i < $userCount; $i++) {
@@ -197,16 +198,19 @@ describe('Real-world Scenarios', function () {
             $user->setCache(); // Simulate login
             $users->push($user);
 
-            // Some users logout immediately
+            // Some users logout immediately (every 3rd user)
             if ($i % 3 === 0) {
                 $user->pullCache(); // Simulate logout
+                $offlineUsers->push($user);
             }
         }
 
-        $expectedOnlineCount = $userCount - intval($userCount / 3);
+        // Calculate expected: total users minus those that went offline
+        $expectedOnlineCount = $userCount - $offlineUsers->count();
         $actualOnlineCount = getUserModel()->allOnline()->count();
 
         expect($actualOnlineCount)->toBe($expectedOnlineCount);
+        expect($offlineUsers->count())->toBe(9); // 25/3 rounded down = 8, but 0%3=0, so it's 9
     });
 
     it('provides consistent ordering under load', function () {
@@ -254,7 +258,9 @@ describe('Security and Privacy', function () {
         // This test documents the current behavior and could guide future improvements
         expect($cacheContent)->toHaveKey('cachedAt');
         expect($cacheContent)->toHaveKey('user');
-        expect($cacheContent['user'])->toBe($user);
+        expect($cacheContent['user']->id)->toBe($user->id);
+        expect($cacheContent['user']->name)->toBe($user->name);
+        expect($cacheContent['user']->email)->toBe($user->email);
 
         // In a production environment, consider implementing user serialization
         // to exclude sensitive fields from cache

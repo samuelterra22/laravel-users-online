@@ -34,7 +34,8 @@ describe('Edge Cases and Validations', function () {
             ->and($content)->toHaveKey('cachedAt')
             ->and($content)->toHaveKey('user')
             ->and($content['cachedAt'])->toBeInstanceOf(Carbon::class)
-            ->and($content['user'])->toBe($user);
+            ->and($content['user']->id)->toBe($user->id)
+            ->and($content['user']->name)->toBe($user->name);
     });
 
     it('preserves existing cache when calling getCacheContent', function () {
@@ -69,24 +70,39 @@ describe('Edge Cases and Validations', function () {
         $user2 = makeUser();
         $user3 = makeUser();
 
+        // Use current time base to avoid cache expiration
+        $baseTime = Carbon::now();
+
         // Set user1 with Carbon instance
-        Carbon::setTestNow(Carbon::create('2023', 1, 1, 10, 0, 0));
+        Carbon::setTestNow($baseTime);
         $user1->setCache();
 
-        // Set user2 with integer timestamp (manually) - using later time
-        Carbon::setTestNow(Carbon::create('2023', 1, 1, 11, 0, 0));
+        // Set user2 with later time (1 second later)
+        Carbon::setTestNow($baseTime->copy()->addSecond());
         $user2->setCache();
 
-        // Set user3 with Carbon instance - using latest time
-        Carbon::setTestNow(Carbon::create('2023', 1, 1, 12, 0, 0));
+        // Set user3 with latest time (2 seconds later)
+        Carbon::setTestNow($baseTime->copy()->addSeconds(2));
         $user3->setCache();
 
-        Carbon::setTestNow(); // Reset to current time
+        // Don't reset time completely, just move forward slightly to ensure cache is still valid
+        Carbon::setTestNow($baseTime->copy()->addSeconds(3));
+
+        // Verify all users are online first
+        expect($user1->isOnline())->toBeTrue();
+        expect($user2->isOnline())->toBeTrue();
+        expect($user3->isOnline())->toBeTrue();
+
+        $allOnline = getUserModel()->allOnline();
+        expect($allOnline)->toHaveCount(3);
 
         $mostRecent = collect(getUserModel()->mostRecentOnline());
         $expectedOrder = [$user3->id, $user2->id, $user1->id];
 
         expect($mostRecent->pluck('id')->all())->toBe($expectedOrder);
+
+        // Reset time at the end
+        Carbon::setTestNow();
     });
 
     it('handles corrupted cache data gracefully', function () {

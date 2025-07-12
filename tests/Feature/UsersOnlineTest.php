@@ -114,7 +114,11 @@ describe('Cache Management', function () {
             ->and($cacheContent)->toHaveKey('user')
             ->and($cacheContent['cachedAt'])->toBeInstanceOf(Carbon::class)
             ->and($cacheContent['cachedAt']->toDateTimeString())->toBe(Carbon::now()->toDateTimeString())
-            ->and($cacheContent['user'])->toBe($user);
+            ->and($cacheContent['user']->id)->toBe($user->id)
+            ->and($cacheContent['user']->name)->toBe($user->name)
+            ->and($cacheContent['user']->email)->toBe($user->email);
+
+        Carbon::setTestNow();
     });
 
 });
