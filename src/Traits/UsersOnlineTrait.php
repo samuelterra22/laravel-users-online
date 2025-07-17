@@ -4,14 +4,16 @@ declare(strict_types=1);
 namespace SamuelTerra22\UsersOnline\Traits;
 
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 
 trait UsersOnlineTrait
 {
-    private const CACHE_PREFIX = 'UserOnline';
-    private const DEFAULT_CACHE_DURATION = 300;
+    private const FALLBACK_CACHE_PREFIX = 'UserOnline';
+    private const FALLBACK_DEFAULT_DURATION = 300;
 
     /**
      * Get all users online.
@@ -27,11 +29,12 @@ trait UsersOnlineTrait
     public function isOnline(): bool
     {
         try {
-            return Cache::has($this->getCacheKey());
-        } catch (\Exception $e) {
+            $cacheStore = $this->getCacheStore();
+            return $cacheStore->has($this->getCacheKey());
+        } catch (Exception $e) {
             logger()->warning('Error checking online status', [
                 'user_id' => $this->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ]);
             return false;
         }
@@ -69,7 +72,8 @@ trait UsersOnlineTrait
     public function getCachedAt(): int
     {
         try {
-            $cache = Cache::get($this->getCacheKey());
+            $cacheStore = $this->getCacheStore();
+            $cache = $cacheStore->get($this->getCacheKey());
 
             if (!isset($cache['cachedAt'])) {
                 return 0;
@@ -82,10 +86,10 @@ trait UsersOnlineTrait
             }
 
             return (int)$cachedAt;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             logger()->warning('Error getting cached timestamp', [
                 'user_id' => $this->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ]);
             return 0;
         }
@@ -94,10 +98,11 @@ trait UsersOnlineTrait
     /**
      * Get the cached Carbon instance for sorting purposes.
      */
-    private function getCachedAtForSorting()
+    private function getCachedAtForSorting(): Carbon
     {
         try {
-            $cache = Cache::get($this->getCacheKey());
+            $cacheStore = $this->getCacheStore();
+            $cache = $cacheStore->get($this->getCacheKey());
 
             if (!isset($cache['cachedAt'])) {
                 return Carbon::createFromTimestamp(0);
@@ -110,10 +115,10 @@ trait UsersOnlineTrait
             }
 
             return Carbon::createFromTimestamp((int)$cachedAt);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             logger()->warning('Error getting cached at for sorting', [
                 'user_id' => $this->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ]);
             return Carbon::createFromTimestamp(0);
         }
@@ -122,23 +127,26 @@ trait UsersOnlineTrait
     /**
      * Set the cache for the user.
      */
-    public function setCache(int $seconds = self::DEFAULT_CACHE_DURATION): bool
+    public function setCache(int $seconds = null): bool
     {
-        try {
-            if ($seconds <= 0) {
-                throw new InvalidArgumentException('Cache duration must be greater than 0');
-            }
+        $duration = $seconds ?? $this->getDefaultDuration();
 
-            return Cache::put(
+        if ($duration <= 0) {
+            throw new InvalidArgumentException('Cache duration must be greater than 0');
+        }
+
+        try {
+            $cacheStore = $this->getCacheStore();
+            return $cacheStore->put(
                 $this->getCacheKey(),
                 $this->buildCacheContent(),
-                $seconds
+                $duration
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             logger()->error('Error setting cache', [
                 'user_id' => $this->id ?? 'unknown',
-                'seconds' => $seconds,
-                'error' => $e->getMessage()
+                'seconds' => $duration,
+                'error'   => $e->getMessage()
             ]);
             return false;
         }
@@ -150,12 +158,13 @@ trait UsersOnlineTrait
     public function getCacheContent(): array
     {
         try {
-            $existingCache = Cache::get($this->getCacheKey());
+            $cacheStore = $this->getCacheStore();
+            $existingCache = $cacheStore->get($this->getCacheKey());
             return $existingCache ?? $this->buildCacheContent();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             logger()->warning('Error getting cache content', [
                 'user_id' => $this->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ]);
             return $this->buildCacheContent();
         }
@@ -167,11 +176,12 @@ trait UsersOnlineTrait
     public function pullCache(): void
     {
         try {
-            Cache::pull($this->getCacheKey());
-        } catch (\Exception $e) {
+            $cacheStore = $this->getCacheStore();
+            $cacheStore->forget($this->getCacheKey());
+        } catch (Exception $e) {
             logger()->warning('Error pulling cache', [
                 'user_id' => $this->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage()
             ]);
         }
     }
@@ -185,7 +195,17 @@ trait UsersOnlineTrait
             throw new InvalidArgumentException('User ID is required for cache key');
         }
 
-        return sprintf('%s-%s', self::CACHE_PREFIX, $this->id);
+        $prefix = config('users-online.cache_prefix', self::FALLBACK_CACHE_PREFIX);
+        return sprintf('%s-%s', $prefix, $this->id);
+    }
+
+    /**
+     * Set cache using configuration values.
+     */
+    public function setCacheWithConfig(?int $seconds = null): bool
+    {
+        $duration = $seconds ?? $this->getDefaultDuration();
+        return $this->setCache($duration);
     }
 
     /**
@@ -203,10 +223,10 @@ trait UsersOnlineTrait
      * Get minimal user data for cache (excludes sensitive information).
      * Override this method to customize what user data is cached.
      */
-    protected function getOnlineUserData()
+    protected function getOnlineUserData(): static
     {
-        // Create a clean copy of user with only necessary fields
-        $userData = $this->only(['id', 'name', 'email']);
+        $fields = config('users-online.user_fields', ['id', 'name', 'email']);
+        $userData = $this->only($fields);
 
         // Create a new instance to avoid caching the full model with all relationships
         $cleanUser = new static();
@@ -217,11 +237,24 @@ trait UsersOnlineTrait
     }
 
     /**
-     * Set cache using configuration values.
+     * Get the default cache duration from config.
      */
-    public function setCacheWithConfig(?int $seconds = null): bool
+    private function getDefaultDuration(): int
     {
-        $duration = $seconds ?? config('users-online.default_duration', self::DEFAULT_CACHE_DURATION);
-        return $this->setCache($duration);
+        return config('users-online.default_duration', self::FALLBACK_DEFAULT_DURATION);
+    }
+
+    /**
+     * Get the cache store instance.
+     */
+    private function getCacheStore(): Repository
+    {
+        $store = config('users-online.cache_store');
+
+        if ($store) {
+            return Cache::store($store);
+        }
+
+        return Cache::store();
     }
 }

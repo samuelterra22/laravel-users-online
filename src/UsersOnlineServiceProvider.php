@@ -11,8 +11,13 @@ class UsersOnlineServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../config/users-online.php' => config_path('users-online.php'),
+            ], 'users-online-config');
+        }
     }
 
     /**
@@ -20,7 +25,11 @@ class UsersOnlineServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
+        $this->mergeConfigFrom(
+            __DIR__ . '/../config/users-online.php',
+            'users-online'
+        );
     }
 }
