@@ -94,7 +94,7 @@ trait UsersOnlineTrait
     /**
      * Get the cached Carbon instance for sorting purposes.
      */
-    private function getCachedAtForSorting()
+    private function getCachedAtForSorting(): Carbon
     {
         try {
             $cache = Cache::get($this->getCacheKey());
@@ -203,7 +203,7 @@ trait UsersOnlineTrait
      * Get minimal user data for cache (excludes sensitive information).
      * Override this method to customize what user data is cached.
      */
-    protected function getOnlineUserData()
+    protected function getOnlineUserData(): static
     {
         // Create a clean copy of user with only necessary fields
         $userData = $this->only(['id', 'name', 'email']);
