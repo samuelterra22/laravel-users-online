@@ -127,7 +127,7 @@ trait UsersOnlineTrait
     /**
      * Set the cache for the user.
      */
-    public function setCache(int $seconds = null): bool
+    public function setCache(?int $seconds = null): bool
     {
         $duration = $seconds ?? $this->getDefaultDuration();
 
