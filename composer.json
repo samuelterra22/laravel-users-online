@@ -19,14 +19,14 @@
   ],
   "require": {
     "php": "^8.2",
-    "laravel/framework": "^9.0|^10.0|^11.0|^12.0"
+    "laravel/framework": "^9.0|^10.0|^11.0|^12.0|^13.0"
   },
   "require-dev": {
-    "illuminate/auth": "^11.0",
-    "illuminate/cache": "^11.0",
-    "illuminate/database": "^11.0",
-    "illuminate/session": "^11.0",
-    "illuminate/support": "^11.0",
+    "illuminate/auth": "^11.0|^12.0|^13.0",
+    "illuminate/cache": "^11.0|^12.0|^13.0",
+    "illuminate/database": "^11.0|^12.0|^13.0",
+    "illuminate/session": "^11.0|^12.0|^13.0",
+    "illuminate/support": "^11.0|^12.0|^13.0",
     "orchestra/testbench": "^7.0|^8.0|^9.0|^10.4",
     "pestphp/pest": "^3.8",
     "phpunit/phpunit": "^11.5.15"
